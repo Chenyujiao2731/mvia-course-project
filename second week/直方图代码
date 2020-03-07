@@ -1,0 +1,81 @@
+#include <iostream>
+#include <string>
+#include <algorithm>
+#include <opencv2/opencv.hpp>
+#include <opencv2/imgproc/imgproc.hpp>
+#include <opencv2/core/core.hpp>
+#include <opencv2/highgui/highgui.hpp>
+using namespace cv;
+using namespace std;
+//直方图绘制函数，参数vector<int> nums 是灰度图片256级灰度的像素个数
+void drawHist(vector<int> nums)
+{
+    Mat hist = Mat::zeros(600, 800, CV_8UC3);
+    auto Max = max_element(nums.begin(), nums.end());//max迭代器类型,最大数目
+    putText(hist, "Histogram", Point(150, 100), FONT_HERSHEY_DUPLEX, 1, Scalar(255, 255, 255));
+    //*********绘制坐标系************//
+    Point o = Point(100, 550);
+    Point x = Point(700, 550);
+    Point y = Point(100, 150);
+    //x轴
+    line(hist, o, x, Scalar(255, 255, 255), 2, 8, 0);
+    //y轴
+    line(hist, o, y, Scalar(255, 255, 255), 2, 8, 0);
+
+    //********绘制灰度曲线***********//
+    Point pts[256];
+    //生成坐标点
+    for (int i = 0; i < 256; i++)
+    {
+        pts[i].x = i * 2 + 100;
+        pts[i].y = 550 - int(nums[i]*(300.0/(*Max)));//归一化到[0, 300]
+        //显示横坐标
+        if ((i + 1) % 16 == 0)
+        {
+            string num = format("%d", i + 1);
+            putText(hist, num, Point(pts[i].x, 570), FONT_HERSHEY_SIMPLEX, 0.5, Scalar(255, 255, 255));
+        }
+    }
+    //绘制线
+    for (int i = 1; i < 256; i++)
+    {
+        line(hist, pts[i - 1], pts[i], Scalar(0, 255, 0), 2);
+    }
+    //显示图像
+    imshow("直方图" ,hist);
+}
+//计算直方图，统计各灰度级像素个数
+void calHist(const string img)
+{
+    Mat src, grey;
+    //读取图象
+    src = imread("display_image.jpg");
+    if (!src.data)
+    {
+        cout << "Image： " + img + " 读取失败" << endl;
+        return;
+    }
+    //先转为灰度图
+    cvtColor(src, grey, COLOR_BGR2GRAY);
+    imshow("灰度图", grey);
+    //计算各灰度级像素个数
+    vector<int> nums(256);
+    for (int i = 0; i < grey.rows; i++)
+    {
+        uchar* p = grey.ptr<uchar>(i);
+        for (int j = 0; j < grey.cols; j++)
+        {
+            nums[p[j]]++;
+        }
+    }
+    drawHist(nums);
+}
+
+int main()
+{
+    string img = "D:\\trashBox\\testIMG\\lena.bmp";
+    calHist(img);
+    
+    waitKey(0);
+    return 0;
+}

@@ -1,0 +1,33 @@
+#include <opencv2/opencv.hpp>
+#include <opencv2/highgui/highgui.hpp>
+#include <opencv2/imgproc/imgproc.hpp>    
+
+using namespace cv;
+
+int main()
+{
+    //读取图片（使用图片的绝对路径）
+    Mat src = imread("display_image.jpg");//mat是matrix的缩写，表示src的数据类型是矩阵类型的 
+    //显示图片
+    imshow("原图", src);
+
+    //显示灰度图
+    Mat Gray;
+    cvtColor(src, Gray, COLOR_BGR2GRAY);//注释一
+    imshow("灰度图", Gray);
+
+
+
+    //进行均值滤波
+    Mat dstImage1;
+    blur(src, dstImage1, Size(7, 7));//注释二
+
+    //模糊操作显示效果图
+    imshow("均值滤波【效果图】", dstImage1);
+
+    //不加此语句图片会一闪而过
+    waitKey(0);
+
+    return 0;
+}
+    
